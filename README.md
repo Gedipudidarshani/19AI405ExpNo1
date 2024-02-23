@@ -235,19 +235,18 @@ if   __name__ == "__main__":
         print("AgentLocation : {0}".format(agent.location)) 
         print("Performance : {0}".format(agent.performance)) 
         time.sleep(3)
-	Status of patients in rooms before treatment
+<h3>OUTPUT</h3>
+Status of patients in rooms before treatment
 {(0, 0): 'unhealthy', (1, 0): 'healthy'}
 AgentLocation : (1, 0)
 Performance : 0
 
-	Status of patient in room after the treatment
+Status of patient in room after the treatment
 {(0, 0): 'unhealthy', (1, 0): 'healthy'}
 AgentLocation : (0, 0)
 Performance : -1
 Enter your temperature100
 medicine prescribed: paracetamol and anti-biotic(low dose)
-<h3>OUTPUT</h3>
-
 Status of patient in room after the treatment
 {(0, 0): 'healthy', (1, 0): 'healthy'}
 AgentLocation : (0, 0)
