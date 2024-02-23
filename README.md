@@ -1,8 +1,6 @@
 <h1>ExpNo 1 :Developing AI Agent with PEAS Description</h1>
 <h3>Name: Gedipudi Darshani</h3>
 <h3>Register Number:212223230062</h3>
-
-
 <h3>AIM:</h3>
 <br>
 <p>To find the PEAS description for the given AI problem and develop an AI agent.</p>
@@ -44,7 +42,6 @@
 
 import random
 import time
-
 
 class Thing: 
     """
@@ -236,20 +233,23 @@ if   __name__ == "__main__":
         print("Performance : {0}".format(agent.performance)) 
         time.sleep(3)
 <h3>OUTPUT</h3>
+"""
 Status of patients in rooms before treatment
 {(0, 0): 'unhealthy', (1, 0): 'healthy'}
 AgentLocation : (1, 0)
 Performance : 0
-
+"""
 Status of patient in room after the treatment
 {(0, 0): 'unhealthy', (1, 0): 'healthy'}
 AgentLocation : (0, 0)
 Performance : -1
+"""
 Enter your temperature100
 medicine prescribed: paracetamol and anti-biotic(low dose)
 Status of patient in room after the treatment
 {(0, 0): 'healthy', (1, 0): 'healthy'}
 AgentLocation : (0, 0)
 Performance : 9
+"""
 <h3>RESULT</h3>
 Thus,an AI agent is developed.
