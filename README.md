@@ -4,8 +4,14 @@
 <h3>AIM:</h3>
 <p>To find the PEAS description for the given AI problem and develop an AI agent.</p>
 <h3>Theory</h3>
-<h3>Medicine prescribing agent:</h3>
-<p>Such this agent prescribes medicine for fever (greater than 98.5 degrees) which we consider here as unhealthy, by the user temperature input, and another environment is rooms in the hospital (two rooms). This agent has to consider two factors one is room location and an unhealthy patient in a random room, the agent has to move from one room to another to check and treat the unhealthy person. The performance of the agent is calculated by incrementing performance and each time after treating in one room again it has to check another room so that the movement causes the agent to reduce its performance. Hence, agents prescribe medicine to unhealthy.</p>
+Performance Measure:Minimize energy comsumption,maximize dirt pick up.making this precise:
+one point for each clean square over lifetime of 1000 steps.
+
+Environment:Two squares,dirt distribution,unknown,assume accions are deterministic
+and environment is static(clean squares stay clean)
+Actuators:Left,Right,Suck,Noop.
+
+Sensors:agent can preceive its location and whether location is dirty.
 <hr>
 <h3>PEAS DESCRIPTION:</h3>
 <table>
@@ -17,25 +23,25 @@
     <td><strong>Sensors</strong></td>
   </tr>
     <tr>
-    <td><strong>Medicine prescribing agent</strong></td>
-    <td><strong>Treating unhealthy, agent movement</strong></td>
-     <td><strong>Rooms, Patient</strong></td>
-    <td><strong>Medicine, Treatment</strong></td>
-    <td><strong>Location, Temperature of patient</strong></td>
+    <td><strong>\Vaccum Cleaner</strong></td>
+    <td><strong>Cleanliness,Number of movements</strong></td>
+     <td><strong>Rooms,Dust</strong></td>
+    <td><strong>Steering,Cleanliness</strong></td>
+    <td><strong>Location,Motion</strong></td>
   </tr>
 </table>
 <hr>
 <H3>DESIGN STEPS</H3>
 <h3>STEP 1:Identifying the input:</h3>
-<p>Temperature from patients, Location.</p>
+<p>Cleanliness,Number of movements</p>
 <h3>STEP 2:Identifying the output:</h3>
-<p>Prescribe medicine if the patient in a random has a fever.</p>
+<p>Prescribe Actuators to make the room clean.</p>
 <h3>STEP 3:Developing the PEAS description:</h3>
 <p>PEAS description is developed by the performance, environment, actuators, and sensors in an agent.</p>
 <h3>STEP 4:Implementing the AI agent:</h3>
-<p>Treat unhealthy patients in each room. And check for the unhealthy patients in random room</p>
+<p>Treat dirty room. And Make it clean in random room</p>
 <h3>STEP 5:</h3>
-<p>Measure the performance parameters: For each treatment performance incremented, for each movement performance decremented</p>
+<p>Measure the performance parameters: For each cleaning performance incremented, for each movement performance decremented</p>
 <h3>PROGRAM</h3>
 
 import random
@@ -80,23 +86,23 @@ def TableDrivenAgentProgram(table):
         action = table.get(tuple(percepts))
         return action 
     return program
-room_A, room_B = (0,0), (1,0) # The two locations for the Doctor to treat
+room_A, room_B = (0,0), (1,0) # The two locations for the Vacuum world
 def TableDrivenDoctorAgent():
     """
-    Tabular approach towards hospital function. 
+    Tabular approach towards Vacuum world
     """
         
     table = {
-    ((room_A, "healthy"),): "Right",
-    ((room_A, "unhealthy"),): "treat",
-    ((room_B, "healthy"),): "Left",
-    ((room_B, "unhealthy"),): "treat",
-    ((room_A, "unhealthy"), (room_A, "healthy")): "Right",
-    ((room_A, "healthy"), (room_B, "unhealthy")): "treat",
-    ((room_B, "healthy"), (room_A, "unhealthy")): "treat",
-    ((room_B, "unhealthy"), (room_B, "healthy")): "Left",
-    ((room_A, "unhealthy"), (room_A, "healthy"), (room_B, "unhealthy")): "treat",
-    ((room_B, "unhealthy"), (room_B, "healthy"), (room_A, "unhealthy")): "treat",
+    ((room_A, "clean"),): "Right",
+    ((room_A, "dirty"),): "Suck",
+    ((room_B, "clean"),): "Left",
+    ((room_B, "dirty"),): "Suck",
+    ((room_A, "dirty"), (room_A, "clean")): "Right",
+    ((room_A, "clean"), (room_B, "dirty")): "Suck",
+    ((room_B, "clean"), (room_A, "dirty")): "Suck",
+    ((room_B, "dirty"), (room_B, "clean")): "Left",
+    ((room_A, "dirty"), (room_A, "clean"), (room_B, "dirty")): "treat",
+    ((room_B, "dirty"), (room_B, "clean"), (room_A, "dirty")): "treat",
     }
     return Agent(TableDrivenAgentProgram(table))
 TableDrivenDoctorAgent()
@@ -112,7 +118,7 @@ class Environment:
     def __init__(self):
         self.things = [] 
         self.agents = []
-        #room_A, room_B = (0,0), (1,0) # The two locations for the Doctor to treat
+        #room_A, room_B = (0,0), (1,0) # The two locations for the Vacuum cleaning
 
     def percept(self, agent):
         """Return the percept that the agent sees at this point. (Implement this.)"""
@@ -150,38 +156,14 @@ class Environment:
                 return 
             self.step()
 
-    def add_thing(self, thing, location=None):
-        """Add a thing to the environment, setting its location. For convenience, if thing is an agent program we make a new agent for it. (Shouldn't need to override this.)"""
-        if not isinstance(thing, Thing):
-            thing = Agent(thing)
-        if thing in self.things:
-            print("Can't add the same thing twice") 
-        else:
-            thing.location = (location if location is not None else self.default_location(thing))
-            self.things.append(thing) 
-            if isinstance(thing, Agent):
-                thing.performance = 0 
-                self.agents.append(thing)
 
-    def delete_thing(self, thing):
-        """Remove a thing from the environment."""
-        try:
-            
-            self.things.remove(thing) 
-        except ValueError as e:
-            print(e)
-            print(" in Environment delete_thing")
-            print(" Thing to be removed: {} at {}".format(thing, thing.location))
-            print(" from list: {}".format([(thing, thing.location) for thing in self.things]))
-        if thing in self.agents: 
-            self.agents.remove(thing)
 class TrivialDoctorEnvironment(Environment):
     """This environment has two locations, A and B. Each can be unhealthy or healthy. The agent perceives its location and the location's status. This serves as an example of how to implement a simple Environment."""
 
     def __init__(self):
         super().__init__()
         #room_A, room_B = (0,0), (1,0) # The two locations for the Doctor to treat
-        self.status = {room_A: random.choice(["healthy", "unhealthy"]), room_B: random.choice(["healthy", "unhealthy"]),}
+        self.status = {room_A: random.choice(["clean", "dirty"]), room_B: random.choice(["clean", "dirty"]),}
 
     def thing_classes(self):
         return [TableDrivenDocterAgent]
@@ -198,19 +180,17 @@ class TrivialDoctorEnvironment(Environment):
         elif action == "Left":
             agent.location = room_A
             agent.performance -= 1
-        elif action == "treat":
-            tem=float(input("Enter your temperature")) 
-            if tem>=98.5:
-                self.status[agent.location] == "unhealthy"
-                print("medicine prescribed: paracetamol and anti-biotic(low dose)")
-                agent.performance += 10
-            else:
-                self.status[agent.location] = "healthy" 
-            self.status[agent.location] = "healthy"
+        elif action == "suck":
+            #tem=float(input("Enter your temperature")) 
+            #if tem>=98.5:
+            self.status[agent.location] == "dirty"
+                #print("medicine prescribed: paracetamol and anti-biotic(low dose)")
+            agent.performance += 10
+        self.status[agent.location] = "clean"
 
 
     def default_location(self, thing):
-           """Agents start in either location at random."""
+           
         return random.choice([room_A, room_B])
 if   __name__ == "__main__":
     
@@ -218,34 +198,30 @@ if   __name__ == "__main__":
     environment = TrivialDoctorEnvironment() 
     #print(environment)
     environment.add_thing(agent)
-    print("\tStatus of patients in rooms before treatment")
+    print("\tStatus of Vacuum Cleaner before cleaning")
     print(environment.status)
     print("AgentLocation : {0}".format(agent.location)) 
     print("Performance : {0}".format(agent.performance))
     time.sleep(3)
     for i in range(2):
         environment.run(steps=1)
-        print("\n\tStatus of patient in room after the treatment") 
+        print("\n\tStatus of Vacuum Cleaner after cleaning") 
         print(environment.status)
         print("AgentLocation : {0}".format(agent.location)) 
         print("Performance : {0}".format(agent.performance)) 
         time.sleep(3)
-<h3>OUTPUT</h3>
-	Status of patients in rooms before treatment
-{(0, 0): 'unhealthy', (1, 0): 'healthy'}
+<h3>Output</h3>
+Status of Vacuum Cleaner before cleaning
+{(0, 0): 'clean', (1, 0): 'dirty'}
 AgentLocation : (1, 0)
 Performance : 0
 
-	Status of patient in room after the treatment
-{(0, 0): 'unhealthy', (1, 0): 'healthy'}
-AgentLocation : (0, 0)
-Performance : -1
-Enter your temperature100
-medicine prescribed: paracetamol and anti-biotic(low dose)
+	Status of Vacuum Cleaner after cleaning
+{(0, 0): 'clean', (1, 0): 'clean'}
+AgentLocation : (1, 0)
+Performance : 10
 
-	Status of patient in room after the treatment
-{(0, 0): 'healthy', (1, 0): 'healthy'}
+	Status of Vacuum Cleaner after cleaning
+{(0, 0): 'clean', (1, 0): 'clean'}
 AgentLocation : (0, 0)
 Performance : 9
-<h3>RESULT</h3>
-Thus,an AI agent is developed.
