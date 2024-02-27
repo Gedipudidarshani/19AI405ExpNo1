@@ -47,6 +47,7 @@ Sensors:agent can preceive its location and whether location is dirty.
 import random
 import time
 
+
 class Thing: 
     """
     This represents any physical object that can appear in an Environment. """
@@ -86,28 +87,26 @@ def TableDrivenAgentProgram(table):
         action = table.get(tuple(percepts))
         return action 
     return program
-room_A, room_B = (0,0), (1,0) # The two locations for the Vacuum world
-def TableDrivenDoctorAgent():
+room_A, room_B = (0,0), (1,0) # The two locations for vacuum cleaners to clean.
+def TableDrivenVacuumAgent():
     """
-    Tabular approach towards Vacuum world
+    Tabular approach towards hospital function. 
     """
         
     table = {
     ((room_A, "clean"),): "Right",
-    ((room_A, "dirty"),): "Suck",
+    ((room_A, "dirty"),): "suck",
     ((room_B, "clean"),): "Left",
-    ((room_B, "dirty"),): "Suck",
+    ((room_B, "dirty"),): "suck",
     ((room_A, "dirty"), (room_A, "clean")): "Right",
-    ((room_A, "clean"), (room_B, "dirty")): "Suck",
-    ((room_B, "clean"), (room_A, "dirty")): "Suck",
+    ((room_A, "clean"), (room_B, "dirty")): "suck",
+    ((room_B, "clean"), (room_A, "dirty")): "suck",
     ((room_B, "dirty"), (room_B, "clean")): "Left",
-    ((room_A, "dirty"), (room_A, "clean"), (room_B, "dirty")): "treat",
-    ((room_B, "dirty"), (room_B, "clean"), (room_A, "dirty")): "treat",
+    ((room_A, "dirty"), (room_A, "clean"), (room_B, "dirty")): "suck",
+    ((room_B, "dirty"), (room_B, "clean"), (room_A, "dirty")): "suck",
     }
     return Agent(TableDrivenAgentProgram(table))
-TableDrivenDoctorAgent()
-<__main__.Agent at 0x20b18d2bc50>
- 
+TableDrivenVacuumAgent()
 class Environment:
     """Abstract class representing an Environment. 'Real' Environment classes inherit from this. Your Environment will typically need to implement:
     percept:	Define the percept that an agent sees. execute_action:	Define the effects of executing an action.
@@ -118,7 +117,7 @@ class Environment:
     def __init__(self):
         self.things = [] 
         self.agents = []
-        #room_A, room_B = (0,0), (1,0) # The two locations for the Vacuum cleaning
+        #room_A, room_B = (0,0), (1,0) # The two locations for the vacuum cleaners to clean.
 
     def percept(self, agent):
         """Return the percept that the agent sees at this point. (Implement this.)"""
@@ -156,8 +155,33 @@ class Environment:
                 return 
             self.step()
 
+    def add_thing(self, thing, location=None):
+        """Add a thing to the environment, setting its location. For convenience, if thing is an agent program we make a new agent for it. (Shouldn't need to override this.)"""
+        if not isinstance(thing, Thing):
+            thing = Agent(thing)
+        if thing in self.things:
+            print("Can't add the same thing twice") 
+        else:
+            thing.location = (location if location is not None else self.default_location(thing))
+            self.things.append(thing) 
+            if isinstance(thing, Agent):
+                thing.performance = 0 
+                self.agents.append(thing)
 
-class TrivialDoctorEnvironment(Environment):
+    def delete_thing(self, thing):
+        """Remove a thing from the environment."""
+        try:
+            
+            self.things.remove(thing) 
+        except ValueError as e:
+            print(e)
+            print(" in Environment delete_thing")
+            print(" Thing to be removed: {} at {}".format(thing, thing.location))
+            print(" from list: {}".format([(thing, thing.location) for thing in self.things]))
+        if thing in self.agents: 
+            self.agents.remove(thing)
+
+class TrivialVacuumEnvironment(Environment):
     """This environment has two locations, A and B. Each can be unhealthy or healthy. The agent perceives its location and the location's status. This serves as an example of how to implement a simple Environment."""
 
     def __init__(self):
@@ -166,10 +190,10 @@ class TrivialDoctorEnvironment(Environment):
         self.status = {room_A: random.choice(["clean", "dirty"]), room_B: random.choice(["clean", "dirty"]),}
 
     def thing_classes(self):
-        return [TableDrivenDocterAgent]
+        return [TableDrivenVacuumAgent]
 
     def percept(self, agent):
-        """Returns the agent's location, and the location status (unhealthy/healthy)."""
+        """Returns the agent's location, and the location status (dirty/clean)."""
         return agent.location, self.status[agent.location]
 
     def execute_action(self, agent, action):
@@ -181,10 +205,7 @@ class TrivialDoctorEnvironment(Environment):
             agent.location = room_A
             agent.performance -= 1
         elif action == "suck":
-            #tem=float(input("Enter your temperature")) 
-            #if tem>=98.5:
-            self.status[agent.location] == "dirty"
-                #print("medicine prescribed: paracetamol and anti-biotic(low dose)")
+             if self.status[agent.location] == "dirty":
             agent.performance += 10
         self.status[agent.location] = "clean"
 
@@ -194,8 +215,8 @@ class TrivialDoctorEnvironment(Environment):
         return random.choice([room_A, room_B])
 if   __name__ == "__main__":
     
-    agent = TableDrivenDoctorAgent() 
-    environment = TrivialDoctorEnvironment() 
+    agent = TableDrivenVacuumAgent() 
+    environment = TrivialVacuumEnvironment() 
     #print(environment)
     environment.add_thing(agent)
     print("\tStatus of Vacuum Cleaner before cleaning")
@@ -210,7 +231,7 @@ if   __name__ == "__main__":
         print("AgentLocation : {0}".format(agent.location)) 
         print("Performance : {0}".format(agent.performance)) 
         time.sleep(3)
-<h3>Output</h3>
+<H3>OUTPUT</H3>
 Status of Vacuum Cleaner before cleaning
 {(0, 0): 'clean', (1, 0): 'dirty'}
 AgentLocation : (1, 0)
@@ -225,3 +246,4 @@ Performance : 10
 {(0, 0): 'clean', (1, 0): 'clean'}
 AgentLocation : (0, 0)
 Performance : 9
+
