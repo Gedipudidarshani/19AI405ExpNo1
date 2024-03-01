@@ -9,6 +9,7 @@ one point for each clean square over lifetime of 1000 steps.
 
 Environment:Two squares,dirt distribution,unknown,assume accions are deterministic
 and environment is static(clean squares stay clean)
+
 Actuators:Left,Right,Suck,Noop.
 
 Sensors:agent can preceive its location and whether location is dirty.
